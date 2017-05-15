@@ -45,14 +45,14 @@ def getSongsForArtist(artist):
 
     return songList
 
-def lyrics_from_song_api_path(song_api_path):
-  song_url = BASE_URL + song_api_path
-  response = requests.get(song_url, headers=headers)
+def lyricsFromSongPath(songPath):
+  songUrl = BASE_URL + songPath
+  response = requests.get(songUrl, headers=headers)
   json = response.json()
   path = json["response"]["song"]["path"]
   #gotta go regular html scraping... come on Genius
-  page_url = "http://genius.com" + path
-  page = requests.get(page_url)
+  pageUrl = "http://genius.com" + path
+  page = requests.get(pageUrl)
   html = BeautifulSoup(page.text, "html.parser")
   #remove script tags that they put in the middle of the lyrics
   [h.extract() for h in html('script')]
