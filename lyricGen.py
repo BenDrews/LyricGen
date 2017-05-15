@@ -1,0 +1,84 @@
+import sys
+import codecs
+import time
+import math
+import nltk
+import random
+import requests
+from bs4 import BeautifulSoup
+
+
+BASE_URL = "http://api.genius.com"
+PAGE_URL = "http://genius.com"
+headers = {'Authorization': 'xJk5uOJTSFsDyrju4H8d8-LBHjgtMq5Ln0bajOh0gIjRgSsIciqajlJmbTLV7O1z'}
+
+def getVerifiedArtists():
+    vArtistUrl = PAGE_URL + "/verified-artists?"
+    page = requests.get(vArtistsUrl)
+    html = BeautifulSoup(page.text, "html.parser")
+    results = []
+
+    for userDetails in html.find_all("div"):
+        if userDetails.has_key("class") and userDetails["class"] == "user_details":
+            href = userDetails.a['href']
+            results.append(href.a[href.rfind("/") + 1:])
+
+    return results
+    
+def getSongsForArtist(artist):
+    searchUrl = BASE_URL + "/search"
+    page = 0
+    data = {'q': artist, 'page':str(page)}
+    response = requests.get(searchUrl, data=data, headers=headers)
+    json = response.json()
+    time.sleep(1)
+    songList = []
+
+    while len(json["response"]["hits"] > 0):
+        print "Getting page " + str(page) + " for artist " + artist
+        songList.extend(json["response"]["hits"])
+        page += 1
+        data['page'] = str(page)
+        response = requests.get(searchUrl, data=data, headers=headers)
+        json = response.json()
+        time.sleep(1)
+
+    return songList
+
+def lyrics_from_song_api_path(song_api_path):
+  song_url = BASE_URL + song_api_path
+  response = requests.get(song_url, headers=headers)
+  json = response.json()
+  path = json["response"]["song"]["path"]
+  #gotta go regular html scraping... come on Genius
+  page_url = "http://genius.com" + path
+  page = requests.get(page_url)
+  html = BeautifulSoup(page.text, "html.parser")
+  #remove script tags that they put in the middle of the lyrics
+  [h.extract() for h in html('script')]
+  #at least Genius is nice and has a tag called 'lyrics'!
+  lyrics = html.find("lyrics").get_text()
+  return lyrics
+
+if __name__ == "__main__":
+    print "Grabbing list of verified artists..."
+    vArtists = getVerifiedArtists()
+    print str(vArtists)
+
+    songList = []
+    for artist in vArtists:
+        songList.extend(getSongsForArtist(artist))
+
+    numWritten = 0
+    for song in songList:
+        lyrics = lyricsFromSongPath(song["result"]["api_path"])
+        time.sleep(1)
+        output = open("lyrics-" + song["result"]["title"], 'w')
+        output.write(lyrics)
+        print "Writing song " + song["result"]["title"] + " to file... [" + numWritten + "]"
+        numWritten += 1
+        print lyrics
+        output.close()
+        
+        
+
