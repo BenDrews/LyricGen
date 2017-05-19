@@ -14,15 +14,14 @@ headers = {'Authorization': 'xJk5uOJTSFsDyrju4H8d8-LBHjgtMq5Ln0bajOh0gIjRgSsIciq
 
 def getVerifiedArtists():
     vArtistUrl = PAGE_URL + "/verified-artists?"
-    page = requests.get(vArtistUrl)
+    page = requests.get(vArtistsUrl)
     html = BeautifulSoup(page.text, "html.parser")
     results = []
 
     for userDetails in html.find_all("div"):
-        if userDetails.has_attr("class") and "user_details" in userDetails["class"]:
+        if userDetails.has_key("class") and userDetails["class"] == "user_details":
             href = userDetails.a['href']
             results.append(href.a[href.rfind("/") + 1:])
-            print(href)
 
     return results
     
@@ -50,14 +49,11 @@ def lyricsFromSongPath(songPath):
   songUrl = BASE_URL + songPath
   response = requests.get(songUrl, headers=headers)
   json = response.json()
-  print("json" + json)
   path = json["response"]["song"]["path"]
-
   #gotta go regular html scraping... come on Genius
   pageUrl = "http://genius.com" + path
   page = requests.get(pageUrl)
   html = BeautifulSoup(page.text, "html.parser")
-
   #remove script tags that they put in the middle of the lyrics
   [h.extract() for h in html('script')]
   #at least Genius is nice and has a tag called 'lyrics'!
