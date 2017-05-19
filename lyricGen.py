@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 
 BASE_URL = "http://api.genius.com"
 PAGE_URL = "http://genius.com"
-headers = {'Authorization': 'xJk5uOJTSFsDyrju4H8d8-LBHjgtMq5Ln0bajOh0gIjRgSsIciqajlJmbTLV7O1z'}
+headers = {'Authorization': 'Bearer xJk5uOJTSFsDyrju4H8d8-LBHjgtMq5Ln0bajOh0gIjRgSsIciqajlJmbTLV7O1z'}
 
 def getVerifiedArtists():
     vArtistUrl = PAGE_URL + "/verified-artists?"
@@ -21,30 +21,33 @@ def getVerifiedArtists():
     for userDetails in html.find_all("div"):
         if userDetails.has_attr("class") and "user_details" in userDetails["class"]:
             href = userDetails.a['href']
-            results.append(href.a[href.rfind("/") + 1:])
-            print(href)
+            artist = str(href)[href.rfind("/") + 1:]
+            results.append(artist)
+            print "\t" + artist
 
     return results
-    
+
+
 def getSongsForArtist(artist):
+    print ("Getting songs for: " + artist)
     searchUrl = BASE_URL + "/search"
     page = 0
-    data = {'q': artist, 'page':str(page)}
+    data = {'q': artist}
     response = requests.get(searchUrl, data=data, headers=headers)
     json = response.json()
-    time.sleep(1)
     songList = []
-
-    while len(json["response"]["hits"] > 0):
+    print json
+    
+    while len(json["response"]["hits"]) > 1:
         print ("Getting page " + str(page) + " for artist " + artist)
         songList.extend(json["response"]["hits"])
         page += 1
         data['page'] = str(page)
         response = requests.get(searchUrl, data=data, headers=headers)
         json = response.json()
-        time.sleep(1)
 
     return songList
+
 
 def lyricsFromSongPath(songPath):
   songUrl = BASE_URL + songPath
@@ -67,7 +70,6 @@ def lyricsFromSongPath(songPath):
 if __name__ == "__main__":
     print ("Grabbing list of verified artists...")
     vArtists = getVerifiedArtists()
-    print (str(vArtists))
 
     songList = []
     for artist in vArtists:
