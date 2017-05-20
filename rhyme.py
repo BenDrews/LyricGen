@@ -2,14 +2,20 @@
 import datamuse
 import pronouncing
 import requests
+import string
 
 # The api object used to access the rhyming database
 api = datamuse.Datamuse()
 
 def getSyllableCount(word):
     # Return the number of syllables
+    #print "\n\n********** GET SYLLABLE COUNT: " + str(word) + "********\n\n"
     phones = pronouncing.phones_for_word(word)
-    return pronouncing.syllable_count(phones[0])
+    # Return 1 syllable as default 
+    if len(phones) < 1:
+        return 1
+    else:
+        return pronouncing.syllable_count(phones[0])
 
 
 def getRhymeWords(line1, line2):
@@ -20,9 +26,9 @@ def getRhymeWords(line1, line2):
     rhyme_word = ""
 
     # Backtrack to the last non-punctuation word
-    while change_word[change_index] in string.punctuation:
+    while line1[change_index] in string.punctuation:
         change_index -= 1
-    while rhyme_word[rhyme_index] in string.punctuation:
+    while line2[rhyme_index] in string.punctuation:
         rhyme_index -= 1
         
     change_word = line1[change_index]
@@ -32,7 +38,13 @@ def getRhymeWords(line1, line2):
     # Get semantically related and rhyming words that typically follow the previous word
     score = 3
     rhymes = api.words(rel_rhy=rhyme_word, ml=change_word, lc=prev_word)
+
+    # Error processing request, return original word
+    if type(rhymes) is not list:
+        return (0, [], change_index)
+        
     rhymes.extend(api.words(rel_nry=rhyme_word, ml=change_word, lc=prev_word))
+    
     if (len(rhymes) == 0):
         # Otherwise, get words that rhyme with the second word and are semantically related
         score -= 1
@@ -49,7 +61,7 @@ def getRhymeWords(line1, line2):
                 rhymes = api.words(rel_rhy=rhyme_word, max=10)
                 rhymes.extend(api.words(rel_nry=rhyme_word, max=10))
 
-    print (change_word + " to " + rhyme_word + " ----- " + str(score) + " : " + str(rhymes) + "\n\n\n")
+    #print (change_word + " to " + rhyme_word + " ----- " + str(score) + " : " + str(rhymes) + "\n\n\n")
     return (score, rhymes, change_index)
 
 
@@ -88,7 +100,14 @@ def makeLinesRhyme(line1, line2):
             best_match_index = index
             closest_syllables = syllabic_difference
 
-    changed_line[change_index] = rhymes[best_match_index]["word"]
+            """
+    print str(change_index) + " : " + str(best_match_index)
+    print "change index: " + str(changed_line)
+    print "rhymes: " + str(rhymes)
+"""
+
+    if len(rhymes) > 0:
+        changed_line[change_index] = rhymes[best_match_index]["word"]
     return (line1, line2)
     
 
@@ -111,7 +130,7 @@ def rhyme(lines, scheme):
 
         # Add rhymed tuple to results
         result.extend([a, b, c, d])
-        
+
     return result
 
 

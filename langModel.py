@@ -162,7 +162,7 @@ class StressTree:
 def buildLM(tokenLines, n):
     lm = {}
     lm['[START]'] = StressTree('[START]')
-    for line in tokenLines:
+    for progress_bar, line in enumerate(tokenLines):
         if len(line) < n:
             continue
         line.append('[END]')
@@ -172,6 +172,8 @@ def buildLM(tokenLines, n):
             if not lm.has_key(tokenPair[0]):
                 lm[tokenPair[0]] = StressTree(tokenPair[0])
             lm[tokenPair[0]].observeWord(tokenPair[1])
+        if (progress_bar % 5000) == 0:
+            print "Progress: " + str((progress_bar * 100) / len(tokenLines)) + "%"
     return lm
 
 def generateLine(lm, n):
@@ -222,29 +224,28 @@ def getStress(word):
 
 def testModel():
     lyricLines = []
-    for filename in glob.glob('lyrics/logic*'):
+    for filename in glob.glob('lyrics/*'):
         print filename
         with codecs.open(filename, 'r', encoding='utf-8') as lyrics:
             lyricLines.extend(lyrics.read().split('\n'))
     tokens = [[word.encode('ascii', 'ignore') for word in line.split()] for line in lyricLines]
     
     lm = buildLM(tokens, 3)
-    print lm['[START]'].root.tokens.keys()
 
     for i in range(0, 5):
-        print "___________________"
+        print "___________________\n"
         line = generateLine(lm, 3)
-        print line
         stressPattern = ''.join(getStress(word).replace('*', '') for word in line)
         candidateLines = []
-        for j in range(0, 10):
+        for j in range(0, 12):
             matchingLine = ' '.join(generateMatchingLines(lm, 3, stressPattern))
-            print matchingLine
             candidateLines.append(matchingLine)
-        rhymedLines = rhyme.rhyme(candidateLines, 'abab')
-        print "RHYMED LINES:"
-        for line in rhymedLines:
-            print rhymedLines
+
+        rhymedLines = rhyme.rhyme(candidateLines, 'aabb')
+        for i, line in enumerate(rhymedLines):
+            print ' '.join(line)
+            if (i+1) % 4 == 0:
+                print ""
 
 
 
