@@ -57,7 +57,6 @@ if __name__ == "__main__":
         with codecs.open(filename, 'r', encoding='utf-8') as lyrics:
             doc.append(lyrics.read())
             docs.append(doc)
-            print doc
             break
 
     #clean(docs)
