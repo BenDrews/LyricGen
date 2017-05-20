@@ -1,4 +1,4 @@
-import sys, getopt, nltk, re, string, random
+import sys, getopt, nltk, re, string, random, codecs
 from nltk.tokenize import RegexpTokenizer
 from nltk.util import bigrams, trigrams
 from nltk.corpus import cmudict
@@ -38,7 +38,7 @@ class StressNode:
         return ''
 
     def getTotal(self):
-        result = 0
+        result = self.count
         if hasattr(self, 'uChild'):
             result += self.uChild.getTotal()
         if hasattr(self, 'sChild'):
@@ -76,7 +76,7 @@ class StressTree:
 
     def getCount(self, stress):
         if stress == '*':
-            return len(self.root.tokens)
+            return self.root.count
         else:
             result = 0
             current = self.root
@@ -86,16 +86,26 @@ class StressTree:
                 else:
                     current = current.getSChild()
                 result += current.count
+                
             return result
 
     def getTotal(self):
-        return self.root.getTotal()
+        result = 0
+        if hasattr(self.root, 'uChild'):
+            result += self.root.uChild.getTotal()
+        if hasattr(self.root, 'sChild'):
+            result += self.root.sChild.getTotal()
+        return result
 
     def generateFreeWord(self):
-        count = self.getCount(stress)
+        count = self.getTotal()
         if count == 0:
-            print 'Cannot generate word'
-            return ''
+            if self.root.count == 0:
+                print 'Cannot generate word'
+                print 'STR CONTENT: ' + self.strContent()
+                return ''
+            index = random.randint(0, self.root.count - 1)
+            return self.root.getWord(index)
         
         index = random.randint(0, self.getTotal() - 1)
         stack = []
@@ -118,11 +128,11 @@ class StressTree:
     def generateWord(self, stress='*'):
         count = self.getCount(stress)
         if count == 0:
-            print 'Cannot generate word'
-            return ''
+            return self.generateFreeWord()
     
         index = random.randint(0, self.getCount(stress) - 1)
         if stress == '*':
+            index = random.randint(0, self.root.count - 1)
             return self.root.getWord(index)
         else:
             current = self.root
@@ -143,7 +153,7 @@ class StressTree:
                     else:
                         print 'Unable to match stress'
                         return self.generateWord()
-                index -= len(current.tokens)
+                index -= current.count
             print 'Unable to match stress'
             return self.generateWord()       
 
@@ -151,7 +161,7 @@ def buildLM(tokenLines, n):
     lm = {}
     lm['[START]'] = StressTree('[START]')
     for line in tokenLines:
-        if len(line < n):
+        if len(line) < n:
             break
         line.append('[END]')
         lm['[START]'].observeWord(' '.join([line[i] for i in range(0, n-1)]))
@@ -165,18 +175,30 @@ def buildLM(tokenLines, n):
 def generateLine(lm, n):
     result = lm['[START]'].generateWord().split()
     while not result[len(result) - 1] == '[END]':
-        result.append(lm[' '.join([result[i] for i in range(len(result) - n, len(result))])].generateFreeWord())
+        key = ' '.join([result[i] for i in range(len(result) - n + 1, len(result))])
+        if lm.has_key(key):
+            result.append(lm[key].generateFreeWord())
+        else:
+            result.append('[END]')
     return result[:len(result) - 1]
 
 def generateMatchingLines(lm, n, stress):
     result = lm['[START]'].generateWord().split()
     while len(stress) > 0:
-        result.append(lm[' '.join([result[i] for i in range(len(result) - n, len(result))])].generateWord(stress))
-        stress = stress[len(result[len(result) - 1]):]
-
+        key = ' '.join([result[i] for i in range(len(result) - n + 1, len(result))])
+        if lm.has_key(key):
+            result.append(lm[key].generateWord(stress))
+            stress = stress[len(getStress(result[len(result) - 1])):]
+        else:
+            stress = ''
+        if result[len(result) - 1] == '[END]':
+            result = result[:len(result) - 1]
     finalStress = getStress(result[len(result) - 1])
-    while not lm[' '.join([result[i] for i in range(len(result) - n, len(result))])].root.tokens.has_key('[END]'):
-        result[len(result) - 1] = lm[' '.join([result[i] for i in range(len(result) - (n + 1), len(result) - 1)])].generateWord(finalStress)
+    key = ' '.join([result[i] for i in range(len(result) - n + 1, len(result))])
+    iterations = 0
+    while not lm[key].root.tokens.has_key('[END]') and iterations < 20:
+        result[len(result)-1] = lm[' '.join([result[i] for i in range(len(result) - n, len(result) - 1)])].generateWord(finalStress)
+        iterations += 1
     return result
 
 def getStress(word):
@@ -195,13 +217,24 @@ def getStress(word):
 
 
 def testModel(filename):
-    return true
+    lyricLines = []
+    for i in range(0, 39):
+        with codecs.open('lyrics/' + filename + str(i), 'r', encoding='utf-8') as lyrics:
+            lyricLines.extend(lyrics.read().split('\n'))
+    tokens = [[word.encode('ascii', 'ignore') for word in nltk.wordpunct_tokenize(line)] for line in lyricLines]
+    
+    lm = buildLM(tokens, 3)
+    for i in range(0, 5):
+        print "___________________"
+        line = generateLine(lm, 3)
+        print line
+        stressPattern = ''.join(getStress(word).replace('*', '') for word in line)
+        matchingLine = generateMatchingLines(lm, 3, stressPattern)
+        print matchingLine
+
+
 
 if __name__ == "__main__":
-    st = StressTree('Something')
-    st.observeWord('blarg')
-    st.observeWord('test2')
-    print st.strContent()
-
-    print st.generateWord('0101')
+    print getStress('somewhere')
+    testModel('logic_')
 
