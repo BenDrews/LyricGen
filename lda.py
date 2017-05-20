@@ -9,14 +9,11 @@ import glob, os, codecs
 docs = []
 clean_list = []
 
-def tokenize(doc):
+def tokenize(line_list):
     # Tokenize the document
-    tokens_list = []
-    for line in doc:
-        tokens = line.split()
-        tokens_list.append(tokens)
-        print tokens
-    return tokens_list
+    for i, line in enumerate(line_list):
+        line_list[i] = line.split(' ')
+    return line_list
     
 
 def removeStopWords(tokens_list):
@@ -25,7 +22,6 @@ def removeStopWords(tokens_list):
     # Remove stop words from doc
     for i, tokens in enumerate(tokens_list):
         tokens_list[i] = [x for x in tokens if x not in stop_words]
-        print tokens_list[i]
     return tokens_list
 
 
@@ -33,32 +29,32 @@ def stem(tokens_list):
     # Stem the tokens in doc
     p_stemmer = PorterStemmer()
     for i, tokens in enumerate(tokens_list):
-        tokens_list[i] = [p_stemmer.stem(i) for i in tokens]
-        print tokens_list[i]
+        tokens_list[i] = [p_stemmer.stem(x) for x in tokens]
     return tokens_list
 
 
 def clean(docs):
     # Clean each document
     for i, doc in enumerate(docs):
-        tokens_list = tokenize(doc)
+        line_list = doc.split('\n')
+        tokens_list = tokenize(line_list)
         stopped_tokens = removeStopWords(tokens_list)
         stemmed_tokens = stem(stopped_tokens)
         docs[i] = stemmed_tokens
-
-    print docs
+        for token_list in stemmed_tokens:
+            line = ""
+            for token in token_list:
+                line += token + " "
+            print line
 
 
 if __name__ == "__main__":
     # Gather all the lyric files
     docs = []
     for filename in glob.glob('lyrics/*'):
-        doc = []
         with codecs.open(filename, 'r', encoding='utf-8') as lyrics:
-            doc.append(lyrics.read())
-            docs.append(doc)
-            print doc
+            docs.append(lyrics.read())
             break
 
-    #clean(docs)
+    clean(docs)
         
