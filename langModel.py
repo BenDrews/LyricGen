@@ -47,6 +47,7 @@ class StressNode:
 
     def strContent(self):
         result = str(self.tokens.keys())
+
         if hasattr(self, 'uChild'):
             result += '\n\nUnstressed Child\n\n' + self.uChild.strContent()
         if hasattr(self, 'sChild'):

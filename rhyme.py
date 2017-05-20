@@ -17,25 +17,25 @@ def getRhymeWords(line1, line2):
     prev_word = line1[-2]
     rhyme_word = line2[-1]
     
-    # Get semantically related and rhyming words that typically follow the 2nd-to-last word
+    # Get semantically related and rhyming words that typically follow the previous word
+    score = 3
     rhymes = api.words(rel_rhy=rhyme_word, ml=change_word, lc=prev_word)
     rhymes.extend(api.words(rel_nry=rhyme_word, ml=change_word, lc=prev_word))
-    score = 3
     if (len(rhymes) == 0):
         # Otherwise, get words that rhyme with the second word and are semantically related
+        score -= 1
         rhymes = api.words(rel_rhy=rhyme_word, ml=change_word, lc=prev_word)
         rhymes.extend(api.words(rel_nry=rhyme_word, ml=change_word, lc=prev_word))
-        score = 2
         if len(rhymes) == 0:
             # Otherwise, get words that rhyme and follow the previous word
-            rhymes = api.words(rel_rhy=rhyme_word, lc=prev_word)
-            rhymes.extend(api.words(rel_nry=rhyme_word, lc=prev_word))
-            score = 1
+            score -= 1
+            rhymes = api.words(rel_rhy=rhyme_word, lc=prev_word, max=10)
+            rhymes.extend(api.words(rel_nry=rhyme_word, lc=prev_word, max=10))
             if (len(rhymes) == 0):
                 # Otherwise, get words that rhyme 
-                rhymes = api.words(rel_rhy=rhyme_word)
-                rhymes.extend(api.words(rel_nry=rhyme_word))
-                score = 0
+                score -= 1
+                rhymes = api.words(rel_rhy=rhyme_word, max=10)
+                rhymes.extend(api.words(rel_nry=rhyme_word, max=10))
 
     print (change_word + " to " + rhyme_word + " ----- " + str(score) + " : " + str(rhymes) + "\n\n\n")
     return (score, rhymes)
@@ -60,26 +60,39 @@ def makeLinesRhyme(line1, line2):
         kept_line = line1
         rhymes = line2_rhymes
 
-    # Replace with the perfect syllabic match for rhyme in rhymes:
-    for rhyme in rhymes:
-        if rhyme["numSyllables"] == getSyllableCount(changed_line[-1]):
+    # Replace with the closest syllabic match for rhyme in rhymes:
+    syllable_count = getSyllableCount(changed_line[-1])
+    best_match_index = 0
+    closest_syllables = 10
+    for index, rhyme in enumerate(rhymes):
+        syllabic_difference = abs(rhyme["numSyllables"] - syllable_count)
+        if syllabic_difference == 0:
             changed_line[-1] = rhyme["word"]
             return (line1, line2)
+        elif syllabic_difference < closest_syllables:
+            best_match_index = index
+            closest_syllables = syllabic_difference
 
-    # Otherwise, return closest syllabic match
-    changed_line[-1] = rhymes[0]["word"]
+    changed_line[-1] = rhymes[best_match_index]["word"]
     return (line1, line2)
     
 
-def rhyme(lines):
+def rhyme(lines, scheme):
     result = []
     # Consider four lines at a time
     for four_tuple in zip(*[iter(lines)]*4):
         (a, b, c, d) = (x.split(' ') for x in four_tuple)
 
         # ABAB rhyme scheme
-        (a, c) = makeLinesRhyme(a, c)
-        (b, d) = makeLinesRhyme(b, d)
+        if scheme == "abab":
+            (a, c) = makeLinesRhyme(a, c)
+            (b, d) = makeLinesRhyme(b, d)
+        elif scheme == "aabb":
+            (a, b) = makeLinesRhyme(a, b)
+            (c, d) = makeLinesRhyme(c, d)
+        else:
+            print "Invalid rhyme scheme"
+            return
 
         # Add rhymed tuple to results
         result.extend([a, b, c, d])
@@ -88,7 +101,8 @@ def rhyme(lines):
 
 
 if __name__ == "__main__":
-    lines = ["these are the days of elijah", "declaring the word of the lord", "these are the days of great trials", "carry my soul, carry my soul away"]
-    lines = rhyme(lines)
+    lines = ["I am so blue I'm greener than purple", "Now I'm a cereal killer", "Llamas eat sexy paper clips", "Every day a grape licks a friendly cow"]
+    lines.extend(["What is your favorite color of the alphabet", "The sparkly lamp then punched larry", "Look, a distraction", "Screw world peace, I want a pony"])
+    lines = rhyme(lines, 'aabb')
     for line in lines:
         print line
