@@ -330,6 +330,8 @@ def testModel():
     for i in range(0, 5):
         print "___________________"
         line = generateLine(lm, 3)
+        while len(line) > 15:
+            line = generateLine(lm, 3)
         print line
         stressPattern = ''.join(getStress(word).replace('*', '') for word in line)
         candidateLines = []
