@@ -322,7 +322,7 @@ def testModel():
         print filename
         with codecs.open(filename, 'r', encoding='utf-8') as lyrics:
             lyricLines.extend(lyrics.read().split('\n'))
-    tokens = [[word.encode('ascii', 'ignore') for word in nltk.wordpunct_tokenize(line)] for line in lyricLines]
+    tokens = [[word.encode('ascii', 'ignore') for word in line.split()] for line in lyricLines]
     
     lm = buildLM(tokens, 3)
     print lm['[START]'].root.tokens.keys()
@@ -335,7 +335,7 @@ def testModel():
         candidateLines = []
         for j in range(0, 10):
             matchingLine = generateMatchingLines(lm, 3, stressPattern)
-            print matchingLine
+            matchingLine = 
             candidateLines.append(matchingLine)
         rhymedLines = rhyme(candidateLine, 'abab')
         print "RHYMED LINES:"
