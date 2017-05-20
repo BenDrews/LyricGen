@@ -4,7 +4,7 @@ from nltk.util import bigrams, trigrams
 from nltk.corpus import cmudict
 from curses.ascii import isdigit
 
-#CMU_DICT = cmudict.dict()
+CMU_DICT = cmudict.dict()
 ALPHA_EXP = re.compile("[A-Za-z]+")
 
 class StressNode:
@@ -176,7 +176,7 @@ def generateMatchingLines(lm, n, stress):
 
     finalStress = getStress(result[len(result) - 1])
     while not lm[' '.join([result[i] for i in range(len(result) - n, len(result))])].root.tokens.has_key('[END]'):
-        result[len(result) - 1] = lm[' '.join([result[i] for i in range(len(result) - (n + 1), len(result) - 1)])].generateWord(finalStress))
+        result[len(result) - 1] = lm[' '.join([result[i] for i in range(len(result) - (n + 1), len(result) - 1)])].generateWord(finalStress)
     return result
 
 def getStress(word):
