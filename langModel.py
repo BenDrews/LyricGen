@@ -226,7 +226,7 @@ def testModel():
         print filename
         with codecs.open(filename, 'r', encoding='utf-8') as lyrics:
             lyricLines.extend(lyrics.read().split('\n'))
-    tokens = [[word.encode('ascii', 'ignore') for word in nltk.wordpunct_tokenize(line)] for line in lyricLines]
+    tokens = [[word.encode('ascii', 'ignore') for word in line.split()] for line in lyricLines]
     
     lm = buildLM(tokens, 3)
     print lm['[START]'].root.tokens.keys()
