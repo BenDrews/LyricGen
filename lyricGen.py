@@ -17,10 +17,12 @@ def clean(lyrics):
     results = []
     for line in lyrics.split("\n"):
         if '[' not in line and ']' not in line and len(line)>0:
-            line = re.sub('(,!?()")', r' \1 ', line)
+            line = re.sub('([,!?:;()\"\-])', r' \1 ', line)
             line = re.sub('\s{2,}', ' ', line)
-            results.append(line)
+            results.append(line.strip().lower())
+            print line.lower()
 
+    return results
 
 def getVerifiedArtists():
     vArtistUrl = PAGE_URL + "/verified-artists?"
@@ -36,7 +38,6 @@ def getVerifiedArtists():
             s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', artist)
             artist = re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
             results.append(artist)
-            print "\t" + artist
 
     return results
 
@@ -50,7 +51,7 @@ def getSongsForArtist(artist):
     json = response.json()
     songList = []
     
-    while len(json["response"]["hits"]) > 1 and page < 5:
+    while len(json["response"]["hits"]) > 1 and page < 1:
         print ("Getting page " + str(page) + " for artist " + artist)
         songList.extend(json["response"]["hits"])
         page += 1
@@ -96,4 +97,3 @@ if __name__ == "__main__":
                 output.write(lyrics)
             output.close()
         
-
