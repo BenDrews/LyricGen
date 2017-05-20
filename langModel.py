@@ -1,4 +1,4 @@
-import sys, getopt, nltk, re, string, random, codecs
+import sys, getopt, nltk, re, string, random, codecs, glob
 from nltk.tokenize import RegexpTokenizer
 from nltk.util import bigrams, trigrams
 from nltk.corpus import cmudict
@@ -219,8 +219,9 @@ def getStress(word):
 
 def testModel(filename):
     lyricLines = []
-    for i in range(0, 39):
-        with codecs.open('lyrics/' + filename + str(i), 'r', encoding='utf-8') as lyrics:
+    for filename in glob.glob('lyrics/*'):
+        print filename
+        with codecs.open(filename, 'r', encoding='utf-8') as lyrics:
             lyricLines.extend(lyrics.read().split('\n'))
     tokens = [[word.encode('ascii', 'ignore') for word in nltk.wordpunct_tokenize(line)] for line in lyricLines]
     
@@ -230,8 +231,9 @@ def testModel(filename):
         line = generateLine(lm, 3)
         print line
         stressPattern = ''.join(getStress(word).replace('*', '') for word in line)
-        matchingLine = generateMatchingLines(lm, 3, stressPattern)
-        print matchingLine
+        for j in range(0, 5):
+            matchingLine = generateMatchingLines(lm, 3, stressPattern)
+            print matchingLine
 
 
 
