@@ -25,18 +25,19 @@ def clean(lyrics):
 
 def getArtists():
     artistUrl = PAGE_URL + "/verified-artists?"
-    page = requests.get(artistUrl)
-    html = BeautifulSoup(page.text, "html.parser")
-    results = []
+    result = []
+    for i in range(0, 20):
+        page = requests.get(artistUrl + "page=" + str(i))
+        html = BeautifulSoup(page.text, "html.parser")
 
-    for userDetails in html.find_all("div"):
-        if userDetails.has_attr("class") and "user_details" in userDetails["class"]:
-            href = userDetails.a['href']
-            # Split CamelCase into spaces
-            artist = str(href)[href.rfind("/") + 1:]
-            s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', artist)
-            artist = re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
-            results.append(artist)
+        for userDetails in html.find_all("div"):
+            if userDetails.has_attr("class") and "user_details" in userDetails["class"]:
+                href = userDetails.a['href']
+                # Split CamelCase into spaces
+                artist = str(href)[href.rfind("/") + 1:]
+                s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', artist)
+                artist = re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
+                results.append(artist)
 
     return results
 
@@ -50,7 +51,7 @@ def getSongsForArtist(artist):
     json = response.json()
     songList = []
     
-    while len(json["response"]["hits"]) > 1 and page < 4:
+    while len(json["response"]["hits"]) > 1 and page < 2:
         print ("Getting page " + str(page) + " for artist " + artist)
         songList.extend(json["response"]["hits"])
         page += 1
