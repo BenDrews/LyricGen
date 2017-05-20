@@ -3,6 +3,7 @@ import codecs
 import time
 import math
 import nltk
+import re
 import random
 import requests
 from bs4 import BeautifulSoup
@@ -11,6 +12,15 @@ from bs4 import BeautifulSoup
 BASE_URL = "http://api.genius.com"
 PAGE_URL = "http://genius.com"
 headers = {'Authorization': 'Bearer qK6Ma2I4_LRiYGEWm0h8HA_oSD90SYZgGPFbAwaZucBr15NZ6pcIdEtACYmxPki6'}
+
+def clean(lyrics):
+    results = []
+    for line in lyrics.split("\n"):
+        if '[' not in line and ']' not in line and len(line)>0:
+            line = re.sub('(,!?()")', r' \1 ', line)
+            line = re.sub('\s{2,}', ' ', line)
+            results.append(line)
+
 
 def getVerifiedArtists():
     vArtistUrl = PAGE_URL + "/verified-artists?"
@@ -21,8 +31,10 @@ def getVerifiedArtists():
     for userDetails in html.find_all("div"):
         if userDetails.has_attr("class") and "user_details" in userDetails["class"]:
             href = userDetails.a['href']
-            print href
+            # Split CamelCase into spaces
             artist = str(href)[href.rfind("/") + 1:]
+            s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', artist)
+            artist = re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
             results.append(artist)
             print "\t" + artist
 
@@ -31,20 +43,18 @@ def getVerifiedArtists():
 
 def getSongsForArtist(artist):
     print ("Getting songs for: " + artist)
-    searchUrl = BASE_URL + "/search?q="
+    searchUrl = BASE_URL + "/search?q=" + artist
     page = 0
-    data = {'q': artist}
-    response = requests.get(searchUrl + artist, headers=headers)
+    response = requests.get(searchUrl, headers=headers)
     
     json = response.json()
     songList = []
     
-    while len(json["response"]["hits"]) > 1:
+    while len(json["response"]["hits"]) > 1 and page < 5:
         print ("Getting page " + str(page) + " for artist " + artist)
         songList.extend(json["response"]["hits"])
         page += 1
-        data['page'] = str(page)
-        response = requests.get(searchUrl, data=data, headers=headers)
+        response = requests.get(searchUrl + "&page=" + str(page), headers=headers)
         json = response.json()
 
     return songList
@@ -65,25 +75,25 @@ def lyricsFromSongPath(songPath):
   [h.extract() for h in html('script')]
   #at least Genius is nice and has a tag called 'lyrics'!
   lyrics = html.find(class_="lyrics").get_text()
-  return lyrics
+  results = clean(lyrics)
+  
+  return '\n'.join(results)
+
 
 if __name__ == "__main__":
     print ("Grabbing list of verified artists...")
     vArtists = getVerifiedArtists()
 
-    songList = []
     for artist in vArtists:
-        songList.extend(getSongsForArtist(artist))
+        songList = getSongsForArtist(artist)
 
-    numWritten = 0
-    for song in songList:
-        lyrics = lyricsFromSongPath(song["result"]["api_path"])
-
-        print ("Writing song " + song["result"]["title"] + " to file... [" + numWritten + "]")
-        with codecs.open("lyrics-" + song["result"]["title"], 'w', 'cp437') as output:
-            output.write(lyrics)
-
-        numWritten += 1
-        output.close()
+        for i, song in enumerate(songList):
+            lyrics = lyricsFromSongPath(song["result"]["api_path"])
+            
+            print ("Writing song " + song["result"]["title"] \
+                   + " to file... [" + artist + "_" + str(i) + "]")
+            with codecs.open("lyrics/" + artist + "_" + str(i), 'w', encoding="utf-8") as output:
+                output.write(lyrics)
+            output.close()
         
 
