@@ -1,0 +1,66 @@
+much has been written and said about the current economic downturn and the resulting lessons on how to run high - technology companies. quite famously , sequoia capital , the premier venture capital firm in silicon valley , held a mandatory all - ceo meeting in fall 2008 during which it advised them to “cut spending. cut fat. preserve capital.” ( you can see the presentation here. )
+the presentation catalyzed a movement. start - ups everywhere adopted a lean , low - burn , low - investment model. to this day , companies seeking funding at our venture firm , andreessen horowitz , proudly proclaim in their pitch decks that they are raising tiny amounts of capital so they can run lean.
+on the one hand , it is a fact that capital invested is negatively correlated with returns in the venture capital industry. pumping too much money into a small start - up is unhealthy for both the company and the investor. on the other hand , facebook has raised several hundred million dollars and is on track to produce fantastic returns for all of its investors.
+so what’s a start - up to do ? much of what has been written and said about lean start - ups makes good sense. however , that advice is often incomplete , and some of the things left unsaid are the least intuitive. in this article , i will articulate some of those things left unsaid in arguing the case for the fat start - up.
+here is my central argument. there are only two priorities for a start - up :
+winning the market and not running out of cash. running lean is not an end. for that matter , neither is running fat. both are tactics that you use to win the market and not run out of cash before you do so. by making “running lean” an end , you may lose your opportunity to win the market , either because you fail to fund the r&d necessary to find product/market fit or you let a competitor out - execute you in taking the market. sometimes running fat is the right thing to do.
+what the hell do i know ? al pacino couldn’t be no gangsta ,
+deniro in ‘casino’ he no gangsta
+wanna be , wanna see , wan’ get a shovel
+dig tookie up n*&%^ ! , cause he know gangstas
+–the game , lax filesat this point , some of you are asking yourselves , “what the hell does ben know ? if he were really smart , then he’d know that thin is in.” it turns out that i have some experience in managing a fat start - up through the dot - com implosion of the early 2000s. this chart offers a brief summary of the nasdaq composite index when i was ceo of loudcloud and opsware :
+note that the nasdaq index is very highly correlated to the start - up funding environment. during the two years i was ceo of opsware , the nasdaq fell 80 percent , far more than it has fallen during the current 2008 - 10 downturn. so the 2000 - 02 environment was at least as traumatic as this one for silicon valley companies—and arguably much worse.
+here is a brief summary of loudcloud/opsware’s fund - raising history during that time :
+september 1999 : loudcloud founded
+november 1999 : loudcloud raises $21 million at a $45 million pre - money valuation ( benchmark capital is the lead investor )
+january 2000 : loudcloud borrows $45 million from morgan stanley ( ms )
+june 2000 : loudcloud raises $120m at a $700m pre - money valuation
+march 2001 : loudcloud goes public on nasdaq , raises $160 million and is valued in the public markets at approximately $480 million. total funds raised to this point : $346 million.
+august 2002 : loudcloud sells the managed services business to eds ( this was the only actual business we had at the time ) for $63.5 million and becomes a software company ( and changes its name to opsware ) .
+september 2002 : opsware trades for 35 cents per share or approximately a $28 million market cap.
+september 2007 : hewlett - packard ( hpq ) acquires opsware for $1.6 billion
+during this period , loudcloud/opsware had over 20 direct competitors. almost all the competitors from the loudcloud era went bankrupt , including mfn/sitesmith , exodus , logictier , williams communication , global crossing , worldcom/digex and storage networks. those that survived got bought with valuations of less than $100 million ( e.g. , totality ) or still have very low valuations ( e.g. , navisite ) .
+how did we do it ? i had a dream i could buy my way to heaven
+when i awoke , i spent that on a necklace
+— kanye west , can’t tell me nothingso how did we navigate through the great dot - com crash , crush the competition , emerge as the no. 1 company in our space and sell the company to hp for $1.6 billion ? did we “cut spending , cut now , and preserve capital ? ” did we make cash preservation our no. 1 priority ?
+no , we didn’t. to underscore the point , here are loudcloud’s average monthly cash burn figures for the quarters ending in :
+apr 2001 : $39 million
+jul 2001 : $35 million
+oct 2001 : $29 million
+jan 2002 : $25 million
+apr 2002 : $22 million
+jul 2002 : $19.4 million
+as you can see , we were aggressively investing in the business throughout 2001 and 2002. while we did reduce our cash burn , we did not make cash preservation our no. 1 priority. as it was , over the course of the transition from loudcloud to eds , we sadly laid off 400 employees and transferred another 150 to eds. however , we didn’t scrimp and save our way to a $1.6 billion acquisition : instead , it’s what we chose not to cut that ultimately got us there.
+loudcloud was a web - hosting business. today , we’d call it a “cloud services” business , but people weren’t quite ready for the “cloud” in 2001. we supercharged our hosting business with software ( called opsware ) that automated our web - hosting operations. the other cloud services businesses of our day also had software investments. however , as the macroeconomic climate changed , they all “cut deep and cut now.” in the end , they ended up putting their software in maintenance mode and stopped building new features.
+as we weighed a decision to make the same deep cuts in our own software r&d efforts ( a move advocated by the intelligentsia of the day , as well as nearly every mba we had working in the company ) , i faced a hard decision : cut deep and get to cash flow break - even quickly or continue to invest heavily in software ?
+in the end , i decided to run fat so that we could continue to invest in the opsware software. at the end of the day , i realized that much larger companies like ibm ( ibm ) could hire smart people and train them. but without a lasting technology - based advantage , it would be increasingly hard for us to defeat them and build our customer base despite early wins with ford ( f ) , fox sports , and the u.k. government ( to name just three of our early customers ) .
+running fat meant that i laid off zero software engineers so that we could keep on investing in our technology , find our product/market fit , and build a lasting technological advantage.
+still , we had to reduce costs or we would clearly go bankrupt. with this new view of the world , i decided that rather than divesting our intellectual property , i would divest our business. now , that may sound logical the way i’ve described it , but consider these facts :
+we were generating $65 million/year from the web - hosting business.
+we were a publicly traded company with a market capitalization of close to $200 million.
+all of our investors ( pubic and private ) believed in and invested in the web - hosting business.
+we had close to 500 employees at the time. nearly all of them were supporting the web - hosting business.
+we had no other business. we had software , but we did not have a software product and certainly did not have a software business.
+despite all of this , we sold the loudcloud hosting business to eds and became opsware the software company. it was not clear that this was a good idea at the time. in fact , the market thought it was a terrible idea : our stock promptly lost 80 percent of its value , putting our market cap at about $28 million. it’s worth pointing out that this was about $40 million less than the cash that we had in the bank.
+during the transition , we shrank our payroll from 450 employees to fewer than 100. even with this massive reduction in expenses , it would take another three quarters to reach cash - flow break - even , a milestone we finally reached in q2 of 2003.
+one could argue–and many did–that we should have cut a lot deeper than we did given that we only had one customer. although eds was a very large customer ( it generated $20 million/year in revenue ) , a brand new software company doesn’t need 100 people. we could have taken steps to reach cash - flow break - even immediately ( clearly , that might have helped us get above 35 cents per share ) . in other words , we could have “gone lean” by cutting deep , cutting now , and preserving capital.
+but rather than do what seemed obvious , i decided to keep on investing. here’s why : in an economic boom , cash is great , but not necessarily a meaningful competitive advantage. if every company is well funded , being super - well funded doesn’t help you win. in fact , being super - well funded can actually screw you.
+but in a bust ( like the one we were in ) , having a lot of cash can be a huge competitive advantage because you can use that cash to put enormous pressure on your underfunded competitors. and that’s what we did.
+we spent aggressively to match our best competitor’s product , feature for feature. and we used our public currency to acquire important adjacent functionality ( network , process and storage management ) that our competitors did not have and couldn’t acquire because they didn’t have the cash ( or the equity ) .
+in doing so , we were able to beat a really high - quality start - up ( bladelogic ) that did not have the massive technical and cultural baggage that came from exiting the managed services business. bladelogic was eventually sold to bmc ( bmc ) for $800 million. but i’m firmly convinced that had we not spent the money , bladelogic would have emerged as the no. 1 company in the space and gotten the $1.6 billion exit instead of opsware.
+in the end , by continuing to invest aggressively in our technological advantage despite a hellacious funding environment , we were able to turn a doomed business into a winning one.
+that is the very short version of how we won the market during the great tech recession of the early 2000s.
+so did we learn ?
+hegel was right when he said that we learn from history that man can never learn anything from history.
+–george bernard shaw ( 1856 - 1950 ) every start - up is in a furious race against time. the start - up must find the product - market fit that leads to a great business and substantially take the market before running out of cash. as a result , the top two priorities are always to :
+find the product that 1 , 000 enterprise or 50 million consumers want to buy and grab those customers before your competitors do.
+raise enough cash and spend it intelligently so that you don’t go broke along the way.
+clearly , you can’t succeed if you don’t achieve both priority no. 1 and priority no. 2. so why is taking the market more important than not running out of cash ? because the only thing worse for an entrepreneur than start - up hell ( bankruptcy ) is start - up purgatory.
+what is start - up purgatory , you ask ? start - up purgatory occurs when you don’t go bankrupt , but you fail to build the no. 1 product in the space. you have enough money with your conservative burn rate to last for many years. you may even be cash - flow positive. however , you have zero chance of becoming a high - growth company. you have zero chance of being anything but a very small technology business ( see navisite ) . from the entrepreneur’s point of view , this can be worse than start - up hell since you are stuck with the small company.
+you recruited all the employees , you raised all the money and you made all the promises. you either see it through or leave–without your good reputation. no one wants to work for an entrepreneur who quits his or her own company. this is start - up purgatory , where you work just as hard , reap none of the rewards , and watch all your best people leave you. it sucks to be you.
+the bottom linespending a little or spending a lot is a means , not an end. choose the right strategy to win the market or you may end up going straight to purgatory.
+as you listen to the virtues of the lean start - up–lightweight sales , light engineering , and so on–keep the following in mind :
+if you are a high - tech start - up , your value is in your intellectual property. don’t stare at your spreadsheets so long that you get confused about that.
+you cannot save your way to winning the market.
+the best companies can raise money even in this market. if you are one of those , you should consider raising enough to wipe out your competition.
+thin is in , but sometimes you gotta eat.

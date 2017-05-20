@@ -37,9 +37,9 @@ def getArtists():
                 artist = str(href)[href.rfind("/") + 1:]
                 s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', artist)
                 artist = re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
-                results.append(artist)
+                result.append(artist)
 
-    return results
+    return result
 
 
 def getSongsForArtist(artist):
@@ -51,7 +51,7 @@ def getSongsForArtist(artist):
     json = response.json()
     songList = []
     
-    while len(json["response"]["hits"]) > 1 and page < 2:
+    while len(json["response"]["hits"]) > 1 and page < 1:
         print ("Getting page " + str(page) + " for artist " + artist)
         songList.extend(json["response"]["hits"])
         page += 1
