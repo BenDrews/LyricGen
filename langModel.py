@@ -281,7 +281,9 @@ def generateLine(lm, n):
     return result[:len(result) - 1]
 
 def generateMatchingLines(lm, n, stress):
-    result = lm['[START]'].generateWord().split()
+    result = []
+    while len(result) < n - 1:
+        result = lm['[START]'].generateWord().split()
     while len(stress) > 0:
         key = ' '.join([result[i] for i in range(len(result) - n + 1, len(result))])
         if lm.has_key(key):
