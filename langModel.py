@@ -251,6 +251,9 @@ def testModel():
             if (i+1) % 4 == 0:
                 print ""
 
+        for line in rhymedLines:
+            print ''.join([getStress(word) in line])
+
 
 
 if __name__ == "__main__":
