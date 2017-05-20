@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 
 BASE_URL = "http://api.genius.com"
 PAGE_URL = "http://genius.com"
-headers = {'Authorization': 'Bearer xJk5uOJTSFsDyrju4H8d8-LBHjgtMq5Ln0bajOh0gIjRgSsIciqajlJmbTLV7O1z'}
+headers = {'Authorization': 'Bearer qK6Ma2I4_LRiYGEWm0h8HA_oSD90SYZgGPFbAwaZucBr15NZ6pcIdEtACYmxPki6'}
 
 def getVerifiedArtists():
     vArtistUrl = PAGE_URL + "/verified-artists?"
@@ -21,6 +21,7 @@ def getVerifiedArtists():
     for userDetails in html.find_all("div"):
         if userDetails.has_attr("class") and "user_details" in userDetails["class"]:
             href = userDetails.a['href']
+            print href
             artist = str(href)[href.rfind("/") + 1:]
             results.append(artist)
             print "\t" + artist
@@ -30,13 +31,13 @@ def getVerifiedArtists():
 
 def getSongsForArtist(artist):
     print ("Getting songs for: " + artist)
-    searchUrl = BASE_URL + "/search"
+    searchUrl = BASE_URL + "/search?q="
     page = 0
     data = {'q': artist}
-    response = requests.get(searchUrl, data=data, headers=headers)
+    response = requests.get(searchUrl + artist, headers=headers)
+    
     json = response.json()
     songList = []
-    print json
     
     while len(json["response"]["hits"]) > 1:
         print ("Getting page " + str(page) + " for artist " + artist)
@@ -53,7 +54,6 @@ def lyricsFromSongPath(songPath):
   songUrl = BASE_URL + songPath
   response = requests.get(songUrl, headers=headers)
   json = response.json()
-  print("json" + json)
   path = json["response"]["song"]["path"]
 
   #gotta go regular html scraping... come on Genius
@@ -64,7 +64,7 @@ def lyricsFromSongPath(songPath):
   #remove script tags that they put in the middle of the lyrics
   [h.extract() for h in html('script')]
   #at least Genius is nice and has a tag called 'lyrics'!
-  lyrics = html.find("lyrics").get_text()
+  lyrics = html.find(class_="lyrics").get_text()
   return lyrics
 
 if __name__ == "__main__":
@@ -78,13 +78,11 @@ if __name__ == "__main__":
     numWritten = 0
     for song in songList:
         lyrics = lyricsFromSongPath(song["result"]["api_path"])
-        time.sleep(1)
+
+        print ("Writing song " + song["result"]["title"] + " to file... [" + numWritten + "]")
         output = open("lyrics-" + song["result"]["title"], 'w')
         output.write(lyrics)
-        print ("Writing song " + song["result"]["title"] + " to file... [" + numWritten + "]")
         numWritten += 1
-        print (lyrics)
         output.close()
-        
         
 

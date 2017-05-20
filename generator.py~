@@ -1,0 +1,15 @@
+from datamuse import datamuse
+
+api = datamuse.Datamuse()
+orange_rhymes = api.words(rel_rhy='orange', max=5)
+print orange_rhymes
+
+orange_near_rhymes = api.words(rel_nry='orange', max=5)
+print orange_near_rhymes
+
+foo_complete = api.suggest(s='foo', max=10)
+print foo_complete
+
+from datamuse import scripts
+foo_df = scripts.dm_to_df(foo_complete)
+print foo_df
