@@ -335,7 +335,7 @@ def testModel():
         candidateLines = []
         for j in range(0, 10):
             matchingLine = generateMatchingLines(lm, 3, stressPattern)
-            matchingLine = 
+            print matchingLine
             candidateLines.append(matchingLine)
         rhymedLines = rhyme(candidateLine, 'abab')
         print "RHYMED LINES:"
