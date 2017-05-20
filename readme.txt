@@ -5,6 +5,12 @@ CMU Pronouncing Dictionary [http://www.speech.cs.cmu.edu/cgi-bin/cmudict],
 Requests [http://docs.python-requests.org/en/master/]
 BeautifulSoup (for lyricGen.py only) [https://www.crummy.com/software/BeautifulSoup/]
 
+FILES WRITTEN:
+langModel.py
+lda.py
+lyricGen.py
 
 TO RUN:
 python langModel.py
+
+
