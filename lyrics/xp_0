@@ -1,0 +1,66 @@
+i first met xpath in 2007 , but we didn't become friends until just recently. for the most part i had avoided it ; when forced to use it , i made do with trial and error. xpath just didn't really make sense to me.
+but then i came across a peculiar parsing problem—too complex for css selectors , too simple to warrant hand - rolled code—and decided to give xpath another shot. i discovered , much to my surprise and glee , that it does make sense , and once it makes sense , it's actually quite useful.
+this is my story.
+the problemsay you're working on a website full of song lyrics , and in order to maintain a consistent reading experience , you want to capitalize the first word of every line. if the lyrics are stored in plain text this is pretty straightforward :
+lyrics.gsub ! ( /^./ ) { |character| character.upcase }but it gets more interesting if the lyrics are stored as an html fragment. a dom doesn't have any built - in concept of " lines. " you can't just break it up with a simple regular expression.
+so the first thing we'll need to do is define , for ourselves , what " the beginning of a line " means in a dom. here's a simple version :
+the first text node inside a <p> tag
+the first text node following a <br> tag
+so , in the simplest case :
+<p>this is the beginning of a line.<br>this is too.</p>but we also want to handle nested inline elements :
+<p><em>this</em> is the beginning of a line. <strong>this is not.</strong></p>i'll take the low roadmy first instinct was to just write a ruby method to scan over relevant parts of the dom and recursively seek out text nodes that fit our criteria. i used some very light css selectors , but nothing too fancy :
+def each_new_line ( document )
+document.css ( 'p' ) .each { |p| yield first_text_node ( p ) }
+document.css ( 'br' ) .each { |br| yield first_text_node ( br.next ) }
+enddef first_text_node ( node )
+if node.nil ? then nil
+elsif node.text ? then node
+elsif node.children.any ? then first_text_node ( node.children.first )
+end
+end
+def first_text_node ( node )
+if node.nil ? then nil
+elsif node.text ? then node
+elsif node.children.any ? then first_text_node ( node.children.first )
+end
+end
+this is a perfectly reasonable solution , but it's a whopping 11 lines of code. further , it feels like we're using the wrong tool for the job : why are we using ruby iterators and conditionals to get at dom nodes ? can we do better ?
+enter xpathxpath is confusing for a couple of reasons. the first is that there are surprisingly few good references on the internet ( don't even think about looking at w3schools ! ) . the best doc i've found is the rfc itself.
+the second is that xpath looks deceptively like css. the word " path " is right there in the name , and so i had always assumed , mistakenly , that the / in an xpath expression plays the same role as the > in a css selector :
+document.xpath ( '//p/em/a' ) == document.css ( 'p > em > a' ) as it turns out , the xpath expression involves a lot of shorthand , which we'll want to explode in order to really understand what's going on. here's the same expression written out in longhand :
+/descendant - or - self : : node ( ) /child : : p/child : : em/child : : a/this xpath expression and the css selector above are equivalent , but not for the reason i had always assumed. an xpath expression consists of one or more “location steps” separated by forward slashes. the / at the beginning means the context of the first step is the root node of the document. each location step knows which nodes have already been matched , and uses that context to answer three questions :
+where do i want to move from the current context ? this is called the axis , and it's optional. the default axis is child , meaning " select all of the children of the currently selected nodes. " in the above example , descendant - or - self is the axis for the first location step , meaning " all of the currently selected nodes and all of their descendants. " most of the axes defined by the xpath spec are likewise intuitively named.
+what sort of nodes do i want to select ? am i selecting <p> tags , text nodes , or is it a free - for - all ? this is specified by the node test , which is the only required part of the location step. in our above example , node ( ) is the most permissive node test : it selects everything. text ( ) would only select text nodes ; element ( ) would only select elements ; and explicitly specified node names like p and em above , of course , would only select elements with those names.
+are there additional filters i want to add ? maybe i only want to select the first child of every node in the current context , or i only want to select <a> tags that have an href attribute. for this sort of assertion , we can use predicates , which filter the matched nodes based on additional tree traversals. so i can filter the matched nodes based on a property of those nodes' children , parents , or siblings.
+our example doesn't have any predicates , so let's add one to only match <a> tags that have an href attribute :
+a better way to think about xpathso instead of thinking of xpath as beefed - up css selectors , a more helpful analogy is to chained jquery traversals. for instance , we could approximate our expression above in jquery like so :
+$ ( document ) .find ( '*' ) .
+children ( 'p' ) .
+children ( 'em' ) .
+in our analogy , the jquery traversal method we use is the equivalent of the axis : .children ( ) corresponds to the xpath child axis , and .find ( ) to the descendant axis.
+the selector we pass to the jquery methods is transparently equivalent to the xpath node test , although jquery doesn't allow us to select text nodes at all.
+the jquery .filter ( ) method stands in for the xpath predicate , although in this case again jquery is much less powerful than xpath.
+note that the .children ( 'em' ) call above will match all <em> children of all the matched <p> tags ; this is exactly how xpath axes work as well.
+ok , back to the beginning - of - line thingnow that we've got a solid grasp of how xpath actually works , let's put it to work to solve the beginning - of - line problem. to start , we'll simplify the problem even further and just look for the first text node in each paragraph :
+find all the nodes in the document
+find all the children of those nodes that are paragraphs
+find all the children of those paragraphs that are text nodes
+and filter those text nodes down to only the first match
+note that the position ( ) function is evaluated within each matching node from the context : so the filter is saying " first text child of each paragraph , " not " first text child of a paragraph in the entire document. "
+this is a good start , but it's not going to match text nodes that are deeply nested inside paragraphs. to do that , let's change our child axis to descendant :
+now we just need to account for line breaks. to start , let's just build a separate expression that matches the first text node following a line break. i'll divide this one into multiple lines ( perfectly legal in xpath ) since it's a bit long :
+/descendant - or - self : : node ( ) /
+child : : br/
+find all the nodes
+find children of those nodes that are br elements
+find all the siblings that follow the br element
+filter those down to only the immediate next sibling of each br
+find all the text nodes that are either the first sibling we already matched ,
+or one of its descendants
+filter those text nodes down to only the first one we matched
+voila ! now we've got a way to select both newlines inside p tags and newlines after br tags. time to combine this all into a single expression :
+( /descendant - or - self : : node ( ) /child : : p|
+so what does all this get us ? hopefully at this point xpath is making some sense , but why go through all that when we had a perfectly good , easily understandable ruby implementation ?
+for the most part , ruby is best used for high - level code like business logic , integrating various application components , and writing rich domain models. the best ruby code is about intent , not implementation. that's why it's so unsatisfying to use ruby to do something as low - level and application - agnostic as traversing a dom tree looking for nodes with a certain property.
+one good reason to use xpath might be speed : nokogiri's xpath traversal is implemented by libxml , and native code is fast ! however , for this particular task , xpath is actually considerably slower than the pure - ruby implementation. interestingly , that's not true if you take out the <br> part and only look for text at the beginning of paragraphs. my guess is that the following - sibling axis is the culprit , since it has to select all the following siblings of the br tags , and then filter them down to only the first sibling.
+so xpath may be slower or may be faster depending on exactly what you're doing , but it’s only hard to read if you’re new to it. it's a purpose - built tool , allowing you to traverse the dom in any way you'd like with expressions that are compact and idiomatic.
