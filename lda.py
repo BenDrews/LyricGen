@@ -42,7 +42,7 @@ def constructMatrix(docs):
     corpus = [dictionary.doc2bow(doc) for doc in docs]
 
     # Generate an LDA model
-    ldamodel = gensim.models.ldamodel.LdaModel(corpus, num_topics=2, id2word = dictionary, passes=20)
+    ldamodel = gensim.models.ldamodel.LdaModel(corpus, num_topics=5, id2word = dictionary, passes=20)
     print(ldamodel.print_topics(num_topics=5, num_words=3))
 
 
