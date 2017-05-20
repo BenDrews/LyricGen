@@ -1,4 +1,4 @@
-import sys, getopt, nltk, re, string, random, codecs, glob, datamuse, pronouncing
+import sys, getopt, nltk, re, string, random, codecs, glob, datamuse, pronouncing, rhyme
 from nltk.tokenize import RegexpTokenizer
 from nltk.util import bigrams, trigrams
 from nltk.corpus import cmudict
@@ -156,104 +156,8 @@ class StressTree:
                         return self.generateWord()
                 index -= current.count
             print 'Unable to match stress'
-            return self.generateWord()       
-
-# The api object used to access the rhyming database
-api = datamuse.Datamuse()
-
-def getSyllableCount(word):
-    # Return the number of syllables
-    phones = pronouncing.phones_for_word(word)
-    return pronouncing.syllable_count(phones[0])
-
-
-def getRhymeWords(line1, line2):
-    change_word = line1[-1]
-    prev_word = line1[-2]
-    rhyme_word = line2[-1]
-    
-    # Get semantically related and rhyming words that typically follow the previous word
-    score = 3
-    rhymes = api.words(rel_rhy=rhyme_word, ml=change_word, lc=prev_word)
-    rhymes.extend(api.words(rel_nry=rhyme_word, ml=change_word, lc=prev_word))
-    if (len(rhymes) == 0):
-        # Otherwise, get words that rhyme with the second word and are semantically related
-        score -= 1
-        rhymes = api.words(rel_rhy=rhyme_word, ml=change_word, lc=prev_word)
-        rhymes.extend(api.words(rel_nry=rhyme_word, ml=change_word, lc=prev_word))
-        if len(rhymes) == 0:
-            # Otherwise, get words that rhyme and follow the previous word
-            score -= 1
-            rhymes = api.words(rel_rhy=rhyme_word, lc=prev_word, max=10)
-            rhymes.extend(api.words(rel_nry=rhyme_word, lc=prev_word, max=10))
-            if (len(rhymes) == 0):
-                # Otherwise, get words that rhyme 
-                score -= 1
-                rhymes = api.words(rel_rhy=rhyme_word, max=10)
-                rhymes.extend(api.words(rel_nry=rhyme_word, max=10))
-
-    print (change_word + " to " + rhyme_word + " ----- " + str(score) + " : " + str(rhymes) + "\n\n\n")
-    return (score, rhymes)
-
-
-def makeLinesRhyme(line1, line2):
-    # Check whether the better rhyme is A1->A2 or A2->A1
-    (line1_score, line1_rhymes) = getRhymeWords(line1, line2)
-    (line2_score, line2_rhymes) = getRhymeWords(line2, line1)
-
-    changed_line = []
-    kept_line = []
-    rhymes = []
-    if line1_score >= line2_score:
-        # Change the first line to rhyme with the third
-        changed_line = line1
-        kept_line = line2
-        rhymes = line1_rhymes
-    else:
-        # Change the third line to rhyme with the first
-        changed_line = line2
-        kept_line = line1
-        rhymes = line2_rhymes
-
-    # Replace with the closest syllabic match for rhyme in rhymes:
-    syllable_count = getSyllableCount(changed_line[-1])
-    best_match_index = 0
-    closest_syllables = 10
-    for index, rhyme in enumerate(rhymes):
-        syllabic_difference = abs(rhyme["numSyllables"] - syllable_count)
-        if syllabic_difference == 0:
-            changed_line[-1] = rhyme["word"]
-            return (line1, line2)
-        elif syllabic_difference < closest_syllables:
-            best_match_index = index
-            closest_syllables = syllabic_difference
-
-    changed_line[-1] = rhymes[best_match_index]["word"]
-    return (line1, line2)
-    
-
-def rhyme(lines, scheme):
-    result = []
-    # Consider four lines at a time
-    for four_tuple in zip(*[iter(lines)]*4):
-        (a, b, c, d) = (x.split(' ') for x in four_tuple)
-
-        # ABAB rhyme scheme
-        if scheme == "abab":
-            (a, c) = makeLinesRhyme(a, c)
-            (b, d) = makeLinesRhyme(b, d)
-        elif scheme == "aabb":
-            (a, b) = makeLinesRhyme(a, b)
-            (c, d) = makeLinesRhyme(c, d)
-        else:
-            print "Invalid rhyme scheme"
-            return
-
-        # Add rhymed tuple to results
-        result.extend([a, b, c, d])
+            return self.generateWord()
         
-    return result
-
 
 def buildLM(tokenLines, n):
     lm = {}
@@ -318,7 +222,7 @@ def getStress(word):
 
 def testModel():
     lyricLines = []
-    for filename in glob.glob('lyrics/*'):
+    for filename in glob.glob('lyrics/logic*'):
         print filename
         with codecs.open(filename, 'r', encoding='utf-8') as lyrics:
             lyricLines.extend(lyrics.read().split('\n'))
@@ -334,10 +238,10 @@ def testModel():
         stressPattern = ''.join(getStress(word).replace('*', '') for word in line)
         candidateLines = []
         for j in range(0, 10):
-            matchingLine = generateMatchingLines(lm, 3, stressPattern)
+            matchingLine = ' '.join(generateMatchingLines(lm, 3, stressPattern))
             print matchingLine
             candidateLines.append(matchingLine)
-        rhymedLines = rhyme(candidateLine, 'abab')
+        rhymedLines = rhyme.rhyme(candidateLines, 'abab')
         print "RHYMED LINES:"
         for line in rhymedLines:
             print rhymedLines
