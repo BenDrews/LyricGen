@@ -50,7 +50,7 @@ def getSongsForArtist(artist):
     json = response.json()
     songList = []
     
-    while len(json["response"]["hits"]) > 1 and page < 1:
+    while len(json["response"]["hits"]) > 1 and page < 4:
         print ("Getting page " + str(page) + " for artist " + artist)
         songList.extend(json["response"]["hits"])
         page += 1
