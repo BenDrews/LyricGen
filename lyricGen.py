@@ -80,8 +80,9 @@ if __name__ == "__main__":
         lyrics = lyricsFromSongPath(song["result"]["api_path"])
 
         print ("Writing song " + song["result"]["title"] + " to file... [" + numWritten + "]")
-        output = open("lyrics-" + song["result"]["title"], 'w')
-        output.write(lyrics)
+        with codecs.open("lyrics-" + song["result"]["title"], 'w', 'cp437') as output:
+            output.write(lyrics)
+
         numWritten += 1
         output.close()
         
