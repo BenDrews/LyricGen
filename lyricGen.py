@@ -20,13 +20,12 @@ def clean(lyrics):
             line = re.sub('([,!?:;()\"\-])', r' \1 ', line)
             line = re.sub('\s{2,}', ' ', line)
             results.append(line.strip().lower())
-            print line.lower()
 
     return results
 
-def getVerifiedArtists():
-    vArtistUrl = PAGE_URL + "/verified-artists?"
-    page = requests.get(vArtistUrl)
+def getArtists():
+    artistUrl = PAGE_URL + "/verified-artists?"
+    page = requests.get(artistUrl)
     html = BeautifulSoup(page.text, "html.parser")
     results = []
 
@@ -83,9 +82,9 @@ def lyricsFromSongPath(songPath):
 
 if __name__ == "__main__":
     print ("Grabbing list of verified artists...")
-    vArtists = getVerifiedArtists()
+    artists = getArtists()
 
-    for artist in vArtists:
+    for artist in artists:
         songList = getSongsForArtist(artist)
 
         for i, song in enumerate(songList):
